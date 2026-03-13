@@ -11,6 +11,7 @@ interface Invoice {
   id: number;
   invoice_no: string;
   gr_number?: string;
+  mairo_number?: string;
   status?: string;
 }
 
@@ -80,6 +81,7 @@ const InvoiceList = () => {
                   <th className="px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">#</th>
                   <th className="px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Invoice No</th>
                   <th className="px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">GR Number</th>
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">MAIRO No</th>
                   <th className="px-5 py-3 text-left text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
                   <th className="px-5 py-3 text-right text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
                 </tr>
@@ -110,23 +112,32 @@ const InvoiceList = () => {
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </td>
+                    <td className="px-5 py-3.5 text-sm">
+                      {invoice.mairo_number ? (
+                        <span className="font-mono text-xs text-foreground bg-success/10 text-success px-2 py-0.5 rounded">{invoice.mairo_number}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="px-5 py-3.5"><StatusBadge status={invoice.status} /></td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-1.5">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleFetchSap(invoice.id, invoice.invoice_no)}
-                          disabled={fetchingId === invoice.id}
-                          className="h-8 px-2.5 text-xs gap-1.5"
-                        >
-                          {fetchingId === invoice.id ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <Download className="w-3.5 h-3.5" />
-                          )}
-                          Fetch SAP
-                        </Button>
+                        {!invoice.gr_number && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleFetchSap(invoice.id, invoice.invoice_no)}
+                            disabled={fetchingId === invoice.id}
+                            className="h-8 px-2.5 text-xs gap-1.5"
+                          >
+                            {fetchingId === invoice.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Download className="w-3.5 h-3.5" />
+                            )}
+                            Fetch GR
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           variant="ghost"

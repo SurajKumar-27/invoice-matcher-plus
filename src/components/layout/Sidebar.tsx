@@ -6,6 +6,7 @@ import {
   Upload,
   LogOut,
   ChevronRight,
+  List,
 } from "lucide-react";
 import logo from "@/assets/ez-invoicing-logo.png";
 
@@ -19,6 +20,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, roles: ["finance", "vendor"] },
   { label: "Invoices", path: "/invoices", icon: FileText, roles: ["finance"] },
+  { label: "My Invoices", path: "/my-invoices", icon: List, roles: ["vendor"] },
   { label: "Upload Invoice", path: "/upload", icon: Upload, roles: ["vendor", "finance"] },
 ];
 
@@ -30,23 +32,19 @@ const Sidebar = () => {
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-[240px] sidebar-gradient flex flex-col z-30">
-      {/* Logo */}
       <div className="h-16 flex items-center gap-3 px-5 border-b border-sidebar-border">
         <img src={logo} alt="EzInvoicing" className="h-8 w-8 rounded-lg" />
         <div>
-          <span className="text-[15px] font-bold text-sidebar-accent-foreground">
-            EzInvoicing
-          </span>
+          <span className="text-[15px] font-bold text-sidebar-accent-foreground">EzInvoicing</span>
           <span className="block text-[10px] uppercase tracking-[0.15em] text-sidebar-foreground/50 font-medium">
             {user?.role === "vendor" ? "Vendor Portal" : "Finance Portal"}
           </span>
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1">
         {filteredNav.map((item) => {
-          const isActive = location.pathname === item.path || 
+          const isActive = location.pathname === item.path ||
             (item.path === "/invoices" && location.pathname.startsWith("/invoices/"));
           return (
             <NavLink
@@ -66,7 +64,6 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* User section */}
       <div className="p-3 border-t border-sidebar-border">
         <div className="px-3 py-2 mb-2">
           <p className="text-[12px] text-sidebar-foreground/50 truncate">{user?.email}</p>

@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
-  ArrowLeft, Loader2, CheckCircle2, XCircle, 
+  ArrowLeft, Loader2, CheckCircle2, 
   FileText, Calendar, Hash, DollarSign, Send, ExternalLink
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 
 interface InvoiceItem {
@@ -33,7 +32,7 @@ interface InvoiceData {
 
 const InvoiceDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { toast } = useToast();
+  const navigate = useNavigate();
   const [data, setData] = useState<InvoiceData | null>(null);
   const [syncing, setSyncing] = useState(true);
   const [isPosting, setIsPosting] = useState(false);
@@ -51,23 +50,14 @@ const InvoiceDetail = () => {
     if (!id) return;
     setIsPosting(true);
     try {
-      // Using the required endpoint: /post-sap/{id}
-      const response = await fetch(`http://localhost:8080/post-sap/${id}`, { 
-        method: "POST" 
-      });
-      
+      const response = await fetch(`http://localhost:8080/post-sap/${id}`, { method: "POST" });
       if (!response.ok) throw new Error("SAP Posting failed");
-
-      toast({
-        title: "Success",
-        description: `Invoice ${data?.invoice_no} posted to SAP successfully.`,
+      const result = await response.json();
+      navigate("/sap-success", {
+        state: { mairoNumber: result.mairo_number || result.mairoNumber || "—", invoiceNo: data?.invoice_no },
       });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to post invoice to SAP. Please try again.",
-      });
+    } catch {
+      alert("Failed to post invoice to SAP. Please try again.");
     } finally {
       setIsPosting(false);
     }
@@ -93,14 +83,13 @@ const InvoiceDetail = () => {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 pb-10">
-      {/* Top Header Navigation */}
       <div className="flex items-center justify-between">
         <Link to="/invoices" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" /> Back to Invoices
         </Link>
         <div className="flex items-center gap-3">
           {allMatch && (
-            <Button onClick={handlePostToSap} disabled={isPosting} className="bg-[#10b981] hover:bg-[#059669] text-white gap-2">
+            <Button onClick={handlePostToSap} disabled={isPosting} className="bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-white gap-2">
               {isPosting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Post to SAP
             </Button>
@@ -108,7 +97,6 @@ const InvoiceDetail = () => {
         </div>
       </div>
 
-      {/* Hero Section: Status & Highlights */}
       <Card className="border-none shadow-sm bg-card">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -140,45 +128,40 @@ const InvoiceDetail = () => {
         </CardContent>
       </Card>
 
-      {/* Middle Section: Summary Details (Left) & PDF (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Metadata Details */}
         <div className="lg:col-span-4 space-y-4">
           <Card className="h-full">
             <div className="px-5 py-4 border-b bg-muted/20 font-semibold text-sm">Invoice Information</div>
             <CardContent className="p-6 space-y-6">
               <div className="flex items-center gap-4">
-                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg"><Calendar className="w-4 h-4" /></div>
+                <div className="p-2 bg-primary/10 text-primary rounded-lg"><Calendar className="w-4 h-4" /></div>
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase">Invoice Date</p>
                   <p className="text-base font-semibold">{data.invoice_date}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="p-2 bg-purple-50 text-purple-600 rounded-lg"><Hash className="w-4 h-4" /></div>
+                <div className="p-2 bg-accent text-accent-foreground rounded-lg"><Hash className="w-4 h-4" /></div>
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase">GR Number</p>
                   <p className="text-base font-semibold">{data.gr_number || "Not Available"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="p-2 bg-green-50 text-green-600 rounded-lg"><DollarSign className="w-4 h-4" /></div>
+                <div className="p-2 bg-success/10 text-success rounded-lg"><DollarSign className="w-4 h-4" /></div>
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase">Total Amount (OCR)</p>
                   <p className="text-xl font-bold">{data.total}</p>
                 </div>
               </div>
               <Separator />
-              <div className="pt-2">
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Verification ensures quantities and rates extracted via OCR match SAP Purchase Order records.
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Verification ensures quantities and rates extracted via OCR match SAP Purchase Order records.
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* PDF Viewer */}
         <div className="lg:col-span-8">
           <Card className="overflow-hidden">
             <div className="px-5 py-3 border-b bg-muted/20 flex items-center justify-between">
@@ -190,17 +173,12 @@ const InvoiceDetail = () => {
               </a>
             </div>
             <div className="bg-[#525659] flex items-center justify-center min-h-[400px]">
-              <iframe
-                src={id ? api.getInvoicePdfUrl(id) : ""}
-                className="w-full h-[500px] border-0"
-                title="Invoice PDF"
-              />
+              <iframe src={id ? api.getInvoicePdfUrl(id) : ""} className="w-full h-[500px] border-0" title="Invoice PDF" />
             </div>
           </Card>
         </div>
       </div>
 
-      {/* Bottom Section: Full Width Item Reconciliation Table */}
       <Card>
         <div className="px-6 py-4 border-b bg-muted/20 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-success" />
@@ -222,8 +200,7 @@ const InvoiceDetail = () => {
             </thead>
             <tbody className="divide-y">
               {items.map((item, index) => {
-                const isMatch = Number(item.quantity) === Number(item.sap_quantity) && 
-                              Number(item.rate) === Number(item.sap_price);
+                const isMatch = Number(item.quantity) === Number(item.sap_quantity) && Number(item.rate) === Number(item.sap_price);
                 return (
                   <tr key={index} className="hover:bg-muted/5 transition-colors">
                     <td className="px-6 py-4 font-mono text-xs font-bold">{item.item_code}</td>
@@ -236,9 +213,7 @@ const InvoiceDetail = () => {
                     <td className={`px-6 py-4 text-center font-mono font-bold ${Number(item.rate) === Number(item.sap_price) ? "text-success" : "text-destructive"}`}>
                       {item.sap_price || "0.00"}
                     </td>
-                    <td className="px-6 py-4 text-center text-xs text-muted-foreground">
-                      {item.po_number} / {item.po_item}
-                    </td>
+                    <td className="px-6 py-4 text-center text-xs text-muted-foreground">{item.po_number} / {item.po_item}</td>
                     <td className="px-6 py-4 text-right">
                       <Badge className={isMatch ? "bg-success/10 text-success border-0" : "bg-destructive/10 text-destructive border-0"}>
                         {isMatch ? "Matched" : "Mismatch"}

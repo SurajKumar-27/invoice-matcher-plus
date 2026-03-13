@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const SapSuccess = () => {
   const location = useLocation();
-  const { mairoNumber, invoiceNo } = (location.state as { mairoNumber?: string; invoiceNo?: string }) || {};
+  const { sap_mairo_number, invoiceNo } = (location.state as { sap_mairo_number?: string; invoiceNo?: string }) || {};
 
   return (
     <div className="flex items-center justify-center min-h-[70vh]">
@@ -31,7 +31,7 @@ const SapSuccess = () => {
 
             <div className="bg-muted/50 rounded-xl p-5">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">MAIRO Number</p>
-              <p className="text-3xl font-bold text-primary font-mono tracking-wide">{mairoNumber || "—"}</p>
+              <p className="text-3xl font-bold text-primary font-mono tracking-wide">{sap_mairo_number || "—"}</p>
             </div>
 
             <Link to="/invoices">

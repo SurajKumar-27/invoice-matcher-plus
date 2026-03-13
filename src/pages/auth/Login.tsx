@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FileText, Building2, AlertCircle } from "lucide-react";
-import logo from "@/assets/ez-invoicing-logo.png";
+import logo from "@/assets/favicon.png";
 
 const Login = () => {
   const [role, setRole] = useState<UserRole>("vendor");

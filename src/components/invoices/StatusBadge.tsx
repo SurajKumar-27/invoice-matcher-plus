@@ -9,7 +9,7 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
 
   const config: Record<string, { label: string; className: string }> = {
     new: { label: "New", className: "bg-blue-500/10 text-blue-600 border-0" },
-    "good received": { label: "Good Received", className: "bg-amber-500/10 text-amber-600 border-0" },
+    "goods received": { label: "Goods Received", className: "bg-amber-500/10 text-amber-600 border-0" },
     matched: { label: "Matched", className: "bg-success/10 text-success border-0" },
     mismatch: { label: "Mismatch", className: "bg-destructive/10 text-destructive border-0" },
     submitted: { label: "Submitted", className: "bg-emerald-500/10 text-emerald-700 border-0" },

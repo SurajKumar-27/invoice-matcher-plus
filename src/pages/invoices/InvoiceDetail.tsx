@@ -54,7 +54,7 @@ const InvoiceDetail = () => {
       if (!response.ok) throw new Error("SAP Posting failed");
       const result = await response.json();
       navigate("/sap-success", {
-        state: { mairoNumber: result.mairo_number || result.mairoNumber || "—", invoiceNo: data?.invoice_no },
+        state: { sap_mairo_number: result.sap_mairo_number || result.mairoNumber || "—", invoiceNo: data?.invoice_no },
       });
     } catch {
       alert("Failed to post invoice to SAP. Please try again.");

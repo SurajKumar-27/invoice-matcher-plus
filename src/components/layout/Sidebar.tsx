@@ -8,7 +8,7 @@ import {
   ChevronRight,
   List,
 } from "lucide-react";
-import logo from "@/assets/ez-invoicing-logo.png";
+import logo from "@/assets/favicon.png";
 
 interface NavItem {
   label: string;

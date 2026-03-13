@@ -5,25 +5,22 @@ interface StatusBadgeProps {
 }
 
 const StatusBadge = ({ status }: StatusBadgeProps) => {
-  const s = (status || "pending").toLowerCase();
+  const s = (status || "new").toLowerCase();
 
-  if (s === "matched") {
-    return (
-      <Badge className="bg-success/10 text-success border-0 font-medium text-xs">
-        Matched
-      </Badge>
-    );
-  }
-  if (s === "mismatch") {
-    return (
-      <Badge className="bg-destructive/10 text-destructive border-0 font-medium text-xs">
-        Mismatch
-      </Badge>
-    );
-  }
+  const config: Record<string, { label: string; className: string }> = {
+    new: { label: "New", className: "bg-blue-500/10 text-blue-600 border-0" },
+    "good received": { label: "Good Received", className: "bg-amber-500/10 text-amber-600 border-0" },
+    matched: { label: "Matched", className: "bg-success/10 text-success border-0" },
+    mismatch: { label: "Mismatch", className: "bg-destructive/10 text-destructive border-0" },
+    submitted: { label: "Submitted", className: "bg-emerald-500/10 text-emerald-700 border-0" },
+    pending: { label: "Pending", className: "bg-muted text-muted-foreground border-0" },
+  };
+
+  const { label, className } = config[s] || config.new;
+
   return (
-    <Badge variant="secondary" className="border-0 font-medium text-xs text-muted-foreground">
-      Pending
+    <Badge className={`${className} font-medium text-xs`}>
+      {label}
     </Badge>
   );
 };

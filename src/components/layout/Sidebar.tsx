@@ -7,6 +7,7 @@ import {
   LogOut,
   ChevronRight,
   List,
+  ClipboardCheck,
 } from "lucide-react";
 import logo from "@/assets/favicon.png";
 
@@ -18,11 +19,18 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, roles: ["finance", "vendor"] },
+  { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, roles: ["finance", "vendor", "approver"] },
   { label: "Invoices", path: "/invoices", icon: FileText, roles: ["finance"] },
+  { label: "Approval Queue", path: "/approvals", icon: ClipboardCheck, roles: ["approver"] },
   { label: "My Invoices", path: "/my-invoices", icon: List, roles: ["vendor"] },
   { label: "Upload Invoice", path: "/upload", icon: Upload, roles: ["vendor", "finance"] },
 ];
+
+const portalLabels: Record<UserRole, string> = {
+  vendor: "Vendor Portal",
+  finance: "Finance Portal",
+  approver: "Approver Portal",
+};
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
@@ -37,7 +45,7 @@ const Sidebar = () => {
         <div>
           <span className="text-[15px] font-bold text-sidebar-accent-foreground">EzInvoicing</span>
           <span className="block text-[10px] uppercase tracking-[0.15em] text-sidebar-foreground/50 font-medium">
-            {user?.role === "vendor" ? "Vendor Portal" : "Finance Portal"}
+            {user ? portalLabels[user.role] : ""}
           </span>
         </div>
       </div>
@@ -45,7 +53,8 @@ const Sidebar = () => {
       <nav className="flex-1 px-3 py-4 space-y-1">
         {filteredNav.map((item) => {
           const isActive = location.pathname === item.path ||
-            (item.path === "/invoices" && location.pathname.startsWith("/invoices/"));
+            (item.path === "/invoices" && location.pathname.startsWith("/invoices/")) ||
+            (item.path === "/approvals" && location.pathname.startsWith("/approvals/"));
           return (
             <NavLink
               key={item.path}

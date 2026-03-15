@@ -12,6 +12,8 @@ import InvoiceList from "@/pages/invoices/InvoiceList";
 import VendorInvoiceList from "@/pages/invoices/VendorInvoiceList";
 import InvoiceDetail from "@/pages/invoices/InvoiceDetail";
 import SapSuccess from "@/pages/invoices/SapSuccess";
+import ApprovalQueue from "@/pages/invoices/ApprovalQueue";
+import SubmissionSuccess from "@/pages/invoices/SubmissionSuccess";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,6 +21,18 @@ const queryClient = new QueryClient();
 const FinanceRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   if (user?.role !== "finance") return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+};
+
+const ApproverRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  if (user?.role !== "approver") return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+};
+
+const FinanceOrApproverRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  if (user?.role !== "finance" && user?.role !== "approver") return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 };
 
@@ -35,9 +49,11 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/upload" element={<UploadInvoice />} />
               <Route path="/invoices" element={<FinanceRoute><InvoiceList /></FinanceRoute>} />
-              <Route path="/invoices/:id" element={<FinanceRoute><InvoiceDetail /></FinanceRoute>} />
+              <Route path="/invoices/:id" element={<FinanceOrApproverRoute><InvoiceDetail /></FinanceOrApproverRoute>} />
               <Route path="/my-invoices" element={<VendorInvoiceList />} />
-              <Route path="/sap-success" element={<FinanceRoute><SapSuccess /></FinanceRoute>} />
+              <Route path="/sap-success" element={<FinanceOrApproverRoute><SapSuccess /></FinanceOrApproverRoute>} />
+              <Route path="/approvals" element={<ApproverRoute><ApprovalQueue /></ApproverRoute>} />
+              <Route path="/submission-success" element={<FinanceRoute><SubmissionSuccess /></FinanceRoute>} />
             </Route>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFound />} />

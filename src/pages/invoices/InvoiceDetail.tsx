@@ -3,13 +3,17 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
   ArrowLeft, Loader2, CheckCircle2, 
-  FileText, Calendar, Hash, DollarSign, Send, ExternalLink
+  FileText, Calendar, Hash, DollarSign, Send, ExternalLink, XCircle
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 
 interface InvoiceItem {
   item_code: string;
@@ -27,15 +31,21 @@ interface InvoiceData {
   invoice_date: string;
   gr_number?: string;
   total: string;
+  status?: string;
   items_details: InvoiceItem[];
 }
 
 const InvoiceDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [data, setData] = useState<InvoiceData | null>(null);
   const [syncing, setSyncing] = useState(true);
-  const [isPosting, setIsPosting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [isRejecting, setIsRejecting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -46,20 +56,48 @@ const InvoiceDetail = () => {
       .finally(() => setSyncing(false));
   }, [id]);
 
-  const handlePostToSap = async () => {
+  const handleSubmitForApproval = async () => {
     if (!id) return;
-    setIsPosting(true);
+    setIsSubmitting(true);
     try {
-      const response = await fetch(`http://localhost:8080/post-sap/${id}`, { method: "POST" });
-      if (!response.ok) throw new Error("SAP Posting failed");
-      const result = await response.json();
-      navigate("/sap-success", {
-        state: { sap_mairo_number: result.sap_mairo_number || result.mairoNumber || "—", invoiceNo: data?.invoice_no },
+      await api.submitForApproval(id);
+      navigate("/submission-success", {
+        state: { invoiceNo: data?.invoice_no },
       });
     } catch {
-      alert("Failed to post invoice to SAP. Please try again.");
+      alert("Failed to submit invoice for approval. Please try again.");
     } finally {
-      setIsPosting(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!id) return;
+    setIsApproving(true);
+    try {
+      const result = await api.approveInvoice(id);
+      navigate("/sap-success", {
+        state: { sap_mairo_number: result.sap_mairo_number || "—", invoiceNo: data?.invoice_no },
+      });
+    } catch {
+      alert("Failed to approve and post invoice to SAP. Please try again.");
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!id || !rejectReason.trim()) return;
+    setIsRejecting(true);
+    try {
+      await api.rejectInvoice(id, rejectReason.trim());
+      navigate("/approvals");
+    } catch {
+      alert("Failed to reject invoice. Please try again.");
+    } finally {
+      setIsRejecting(false);
+      setRejectDialogOpen(false);
+      setRejectReason("");
     }
   };
 
@@ -81,18 +119,39 @@ const InvoiceDetail = () => {
   ).length;
   const allMatch = matchCount === items.length && items.length > 0;
 
+  const isFinance = user?.role === "finance";
+  const isApprover = user?.role === "approver";
+  const backPath = isApprover ? "/approvals" : "/invoices";
+  const backLabel = isApprover ? "Back to Approval Queue" : "Back to Invoices";
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 pb-10">
       <div className="flex items-center justify-between">
-        <Link to="/invoices" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="w-4 h-4" /> Back to Invoices
+        <Link to={backPath} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="w-4 h-4" /> {backLabel}
         </Link>
         <div className="flex items-center gap-3">
-          {allMatch && (
-            <Button onClick={handlePostToSap} disabled={isPosting} className="bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-white gap-2">
-              {isPosting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Post to SAP
+          {allMatch && isFinance && (
+            <Button onClick={handleSubmitForApproval} disabled={isSubmitting} className="bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-white gap-2">
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              Submit for Approval
             </Button>
+          )}
+          {isApprover && (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setRejectDialogOpen(true)}
+                className="gap-2 border-destructive/30 text-destructive hover:bg-destructive/10"
+              >
+                <XCircle className="w-4 h-4" />
+                Reject
+              </Button>
+              <Button onClick={handleApprove} disabled={isApproving} className="bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-white gap-2">
+                {isApproving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                Approve & Post to SAP
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -226,6 +285,38 @@ const InvoiceDetail = () => {
           </table>
         </div>
       </Card>
+
+      {/* Reject Dialog */}
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Invoice</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <Label htmlFor="reject-reason">Reason for rejection</Label>
+            <Textarea
+              id="reject-reason"
+              placeholder="Please provide a reason for rejecting this invoice..."
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              rows={4}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleReject}
+              disabled={isRejecting || !rejectReason.trim()}
+            >
+              {isRejecting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Reject Invoice
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };

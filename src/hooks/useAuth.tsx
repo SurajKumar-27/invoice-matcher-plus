@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
 
-export type UserRole = "vendor" | "finance";
+export type UserRole = "vendor" | "finance" | "approver";
 
 interface AuthUser {
   email: string;
@@ -22,15 +21,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return stored ? JSON.parse(stored) : null;
   });
 
-  const login = (email: string, password: string, role: UserRole): boolean => {
-    const validCredentials: Record<UserRole, { email: string; password: string }> = {
-      vendor: { email: "vendorinvoice@gmail.com", password: "1234" },
-      finance: { email: "financeinvoice@gmail.com", password: "1234" },
-    };
+  const login = (email: string, password: string, _role: UserRole): boolean => {
+    const allCredentials: { email: string; password: string; role: UserRole }[] = [
+      { email: "approverinvoice@gmail.com", password: "1234", role: "approver" },
+      { email: "vendorinvoice@gmail.com", password: "1234", role: "vendor" },
+      { email: "financeinvoice@gmail.com", password: "1234", role: "finance" },
+    ];
 
-    const creds = validCredentials[role];
-    if (email === creds.email && password === creds.password) {
-      const authUser = { email, role };
+    const match = allCredentials.find(
+      (c) => c.email === email && c.password === password
+    );
+
+    if (match) {
+      const authUser = { email: match.email, role: match.role };
       setUser(authUser);
       sessionStorage.setItem("ez_user", JSON.stringify(authUser));
       return true;

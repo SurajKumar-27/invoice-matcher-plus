@@ -14,6 +14,9 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
     mismatch: { label: "Mismatch", className: "bg-destructive/10 text-destructive border-0" },
     submitted: { label: "Submitted", className: "bg-emerald-500/10 text-emerald-700 border-0" },
     pending: { label: "Pending", className: "bg-muted text-muted-foreground border-0" },
+    "pending approval": { label: "Pending Approval", className: "bg-purple-500/10 text-purple-600 border-0" },
+    approved: { label: "Approved", className: "bg-success/10 text-success border-0" },
+    rejected: { label: "Rejected", className: "bg-destructive/10 text-destructive border-0" },
   };
 
   const { label, className } = config[s] || config.new;

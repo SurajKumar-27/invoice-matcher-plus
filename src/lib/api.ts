@@ -24,4 +24,29 @@ export const api = {
     formData.append("file", file);
     return fetch(`${API_BASE}/upload`, { method: "POST", body: formData }).then((r) => r.json());
   },
+
+  submitForApproval: (id: string) =>
+    fetch(`${API_BASE}/submit-for-approval/${id}`, { method: "POST" }).then((r) => {
+      if (!r.ok) throw new Error("Submission failed");
+      return r.json();
+    }),
+
+  getPendingApprovals: () =>
+    fetch(`${API_BASE}/pending-approvals`).then((r) => r.json()),
+
+  approveInvoice: (id: string) =>
+    fetch(`${API_BASE}/approve/${id}`, { method: "POST" }).then((r) => {
+      if (!r.ok) throw new Error("Approval failed");
+      return r.json();
+    }),
+
+  rejectInvoice: (id: string, reason: string) =>
+    fetch(`${API_BASE}/reject/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
+    }).then((r) => {
+      if (!r.ok) throw new Error("Rejection failed");
+      return r.json();
+    }),
 };

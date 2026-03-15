@@ -33,7 +33,6 @@ const ApprovalQueue = () => {
       <PageHeader
         title="Approval Queue"
         description="Review and approve invoices submitted by the finance team"
-        icon={ClipboardCheck}
       />
 
       <Card className="overflow-hidden">

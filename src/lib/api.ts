@@ -33,8 +33,20 @@ export const api = {
   uploadInvoice: (file: File, type: InvoiceType = "material") => {
     const formData = new FormData();
     formData.append("file", file);
-    return fetch(`${API_BASE}${uploadEndpoints[type]}`, { method: "POST", body: formData }).then((r) => r.json());
+    return fetch(`${API_BASE}${uploadEndpoints[type]}`, { method: "POST", body: formData }).then((r) => {
+      if (!r.ok) throw new Error("Upload failed");
+      const contentType = r.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return r.json();
+      }
+      return r.text().then((text) => {
+        try { return JSON.parse(text); } catch { return { success: true, message: text }; }
+      });
+    });
   },
+
+  getServiceInvoiceData: (id: string) =>
+    fetch(`${API_BASE}/invoice/${id}/service-data`).then((r) => r.json()),
 
   submitForApproval: (id: string) =>
     fetch(`${API_BASE}/submit-for-approval/${id}`, { method: "POST" }).then((r) => {

@@ -53,6 +53,12 @@ const InvoiceDetail = () => {
     if (!id) return;
     setSyncing(true);
     api.getInvoiceData(id)
+      .then((initialData) => {
+        if (initialData?.invoice_type === "service") {
+          return api.getServiceInvoiceData(id);
+        }
+        return initialData;
+      })
       .then(setData)
       .catch(console.error)
       .finally(() => setSyncing(false));

@@ -1,5 +1,13 @@
 const API_BASE = "http://localhost:8080";
 
+export type InvoiceType = "material" | "service" | "others";
+
+const uploadEndpoints: Record<InvoiceType, string> = {
+  material: "/upload/material",
+  service: "/upload/service",
+  others: "/upload/others",
+};
+
 export const api = {
   getInvoices: () =>
     fetch(`${API_BASE}/invoices`).then((r) => r.json()),
@@ -13,16 +21,19 @@ export const api = {
   fetchSapGr: (invoiceNo: string) =>
     fetch(`${API_BASE}/fetch-sap/${invoiceNo}`, { method: "POST" }).then((r) => r.json()),
 
+  fetchSes: (invoiceNo: string) =>
+    fetch(`${API_BASE}/fetch-ses/${invoiceNo}`, { method: "POST" }).then((r) => r.json()),
+
   deleteInvoice: (id: number) =>
     fetch(`${API_BASE}/delete/${id}`).then((r) => {
       if (!r.ok) throw new Error("Delete failed");
       return r;
     }),
 
-  uploadInvoice: (file: File) => {
+  uploadInvoice: (file: File, type: InvoiceType = "material") => {
     const formData = new FormData();
     formData.append("file", file);
-    return fetch(`${API_BASE}/upload`, { method: "POST", body: formData }).then((r) => r.json());
+    return fetch(`${API_BASE}${uploadEndpoints[type]}`, { method: "POST", body: formData }).then((r) => r.json());
   },
 
   submitForApproval: (id: string) =>

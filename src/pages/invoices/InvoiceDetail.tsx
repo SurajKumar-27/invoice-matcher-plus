@@ -205,7 +205,14 @@ const InvoiceDetail = () => {
                 <div className="p-2 bg-accent text-accent-foreground rounded-lg"><Hash className="w-4 h-4" /></div>
                 <div>
                   <p className="text-[10px] font-bold text-muted-foreground uppercase">GR Number</p>
-                  <p className="text-base font-semibold">{data.gr_number || "Not Available"}</p>
+                  <p className="text-base font-semibold">{data.gr_number || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-accent text-accent-foreground rounded-lg"><Hash className="w-4 h-4" /></div>
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase">SES Number</p>
+                  <p className="text-base font-semibold">{data.ses_number || "N/A"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">

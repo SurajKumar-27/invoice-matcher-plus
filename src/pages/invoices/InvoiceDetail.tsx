@@ -52,11 +52,13 @@ const InvoiceDetail = () => {
   useEffect(() => {
     if (!id) return;
     setSyncing(true);
-    // Use different endpoint for service invoices
-    const fetchData = data?.invoice_type === "service" 
-      ? api.getServiceInvoiceData(id) 
-      : api.getInvoiceData(id);
-    fetchData
+    api.getInvoiceData(id)
+      .then((initialData) => {
+        if (initialData?.invoice_type === "service") {
+          return api.getServiceInvoiceData(id);
+        }
+        return initialData;
+      })
       .then(setData)
       .catch(console.error)
       .finally(() => setSyncing(false));

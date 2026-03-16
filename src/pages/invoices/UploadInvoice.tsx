@@ -2,11 +2,22 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, FileUp, CheckCircle, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { api } from "@/lib/api";
 import PageHeader from "@/components/layout/PageHeader";
 
+type InvoiceType = "material" | "service" | "others";
+
+const invoiceTypeLabels: Record<InvoiceType, { label: string; description: string }> = {
+  material: { label: "Material Invoice", description: "For goods/material procurement" },
+  service: { label: "Service Invoice", description: "For service-based procurement" },
+  others: { label: "Others", description: "Miscellaneous invoice types" },
+};
+
 const UploadInvoice = () => {
   const [file, setFile] = useState<File | null>(null);
+  const [invoiceType, setInvoiceType] = useState<InvoiceType>("material");
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -33,7 +44,7 @@ const UploadInvoice = () => {
     setLoading(true);
     setSuccess(false);
     try {
-      await api.uploadInvoice(file);
+      await api.uploadInvoice(file, invoiceType);
       setSuccess(true);
       setFile(null);
     } catch {
@@ -48,6 +59,35 @@ const UploadInvoice = () => {
       <PageHeader title="Upload Invoice" description="Submit a PDF invoice for OCR extraction and processing." />
 
       <form onSubmit={handleUpload}>
+        {/* Invoice Type Selection */}
+        <div className="bg-card rounded-xl border p-5 mb-4">
+          <p className="text-sm font-semibold text-foreground mb-3">Invoice Type</p>
+          <RadioGroup
+            value={invoiceType}
+            onValueChange={(v) => setInvoiceType(v as InvoiceType)}
+            className="flex flex-col gap-2"
+          >
+            {(Object.keys(invoiceTypeLabels) as InvoiceType[]).map((type) => (
+              <Label
+                key={type}
+                htmlFor={`type-${type}`}
+                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                  invoiceType === type
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-muted-foreground/30"
+                }`}
+              >
+                <RadioGroupItem value={type} id={`type-${type}`} />
+                <div>
+                  <p className="text-sm font-medium text-foreground">{invoiceTypeLabels[type].label}</p>
+                  <p className="text-xs text-muted-foreground">{invoiceTypeLabels[type].description}</p>
+                </div>
+              </Label>
+            ))}
+          </RadioGroup>
+        </div>
+
+        {/* Drop Zone */}
         <div
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -55,7 +95,7 @@ const UploadInvoice = () => {
           onDrop={handleDrop}
           className={`bg-card rounded-xl border-2 border-dashed transition-all duration-200 ${
             dragActive
-              ? "border-primary bg-brand-muted"
+              ? "border-primary bg-primary/5"
               : file
               ? "border-primary/30"
               : "border-border hover:border-muted-foreground/30"

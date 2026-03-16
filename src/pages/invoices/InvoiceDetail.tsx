@@ -29,7 +29,9 @@ interface InvoiceItem {
 interface InvoiceData {
   invoice_no: string;
   invoice_date: string;
+  invoice_type?: string;
   gr_number?: string;
+  ses_number?: string;
   total: string;
   status?: string;
   items_details: InvoiceItem[];

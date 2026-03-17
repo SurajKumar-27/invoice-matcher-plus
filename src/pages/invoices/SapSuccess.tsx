@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const SapSuccess = () => {
   const location = useLocation();
-  const { sap_mairo_number, invoiceNo } = (location.state as { sap_mairo_number?: string; invoiceNo?: string }) || {};
+  const { sap_mairo_number, invoiceNo, isDirect } = (location.state as { sap_mairo_number?: string; invoiceNo?: string; isDirect?: boolean }) || {};
 
   return (
     <div className="flex items-center justify-center min-h-[70vh]">

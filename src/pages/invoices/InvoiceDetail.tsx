@@ -281,7 +281,7 @@ const InvoiceDetail = () => {
                 {!isDirect && <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">SAP Qty</th>}
                 <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{isDirect ? "Rate" : "OCR Rate"}</th>
                 {!isDirect && <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">SAP Rate</th>}
-                <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">PO / Item</th>
+                {!isDirect && <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">PO / Item</th>}
                 {!isDirect && <th className="px-6 py-4 text-right text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Result</th>}
               </tr>
             </thead>

@@ -44,7 +44,6 @@ const Login = () => {
           </p>
           <div className="mt-10 grid grid-cols-3 gap-6">
             {[
-              { value: "99.2%", label: "OCR Accuracy" },
               { value: "3-Way", label: "Auto Matching" },
               { value: "SAP", label: "Integration" },
             ].map((stat) => (

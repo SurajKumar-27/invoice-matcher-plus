@@ -1,11 +1,11 @@
 const API_BASE = "http://localhost:8080";
 
-export type InvoiceType = "material" | "service" | "others";
+export type InvoiceType = "material" | "service" | "direct";
 
 const uploadEndpoints: Record<InvoiceType, string> = {
   material: "/upload/material",
   service: "/upload/service",
-  others: "/upload/others",
+  direct: "/upload/direct",
 };
 
 export const api = {
@@ -45,8 +45,6 @@ export const api = {
     });
   },
 
-  getServiceInvoiceData: (id: string) =>
-    fetch(`${API_BASE}/invoice/${id}/service-data`).then((r) => r.json()),
 
   submitForApproval: (id: string) =>
     fetch(`${API_BASE}/submit-for-approval/${id}`, { method: "POST" }).then((r) => {

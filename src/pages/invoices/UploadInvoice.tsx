@@ -7,12 +7,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { api } from "@/lib/api";
 import PageHeader from "@/components/layout/PageHeader";
 
-type InvoiceType = "material" | "service" | "others";
+type InvoiceType = "material" | "service" | "direct";
 
 const invoiceTypeLabels: Record<InvoiceType, { label: string; description: string }> = {
   material: { label: "Material Invoice", description: "For goods/material procurement" },
   service: { label: "Service Invoice", description: "For service-based procurement" },
-  others: { label: "Others", description: "Miscellaneous invoice types" },
+  direct: { label: "Direct Invoice", description: "Direct invoice types" },
 };
 
 const UploadInvoice = () => {

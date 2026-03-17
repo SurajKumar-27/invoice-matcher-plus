@@ -54,9 +54,6 @@ const InvoiceDetail = () => {
     setSyncing(true);
     api.getInvoiceData(id)
       .then((initialData) => {
-        if (initialData?.invoice_type === "service") {
-          return api.getServiceInvoiceData(id);
-        }
         return initialData;
       })
       .then(setData)

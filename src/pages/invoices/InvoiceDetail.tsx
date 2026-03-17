@@ -82,7 +82,7 @@ const InvoiceDetail = () => {
     try {
       const result = await api.approveInvoice(id);
       navigate("/sap-success", {
-        state: { sap_mairo_number: result.sap_mairo_number || "—", invoiceNo: data?.invoice_no },
+        state: { sap_mairo_number: result.sap_mairo_number || "—", invoiceNo: data?.invoice_no, isDirect },
       });
     } catch {
       alert("Failed to approve and post invoice to SAP. Please try again.");
@@ -138,7 +138,7 @@ const InvoiceDetail = () => {
           <ArrowLeft className="w-4 h-4" /> {backLabel}
         </Link>
         <div className="flex items-center gap-3">
-          {allMatch && isFinance && (
+          {allMatch && isFinance && data.status !== "submitted" && data.status !== "pending approval" && data.status !== "approved" && (
             <Button onClick={handleSubmitForApproval} disabled={isSubmitting} className="bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-white gap-2">
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Submit for Approval
@@ -281,7 +281,7 @@ const InvoiceDetail = () => {
                 {!isDirect && <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">SAP Qty</th>}
                 <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{isDirect ? "Rate" : "OCR Rate"}</th>
                 {!isDirect && <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">SAP Rate</th>}
-                <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">PO / Item</th>
+                {!isDirect && <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">PO / Item</th>}
                 {!isDirect && <th className="px-6 py-4 text-right text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Result</th>}
               </tr>
             </thead>
@@ -304,7 +304,7 @@ const InvoiceDetail = () => {
                         {item.sap_price || "0.00"}
                       </td>
                     )}
-                    <td className="px-6 py-4 text-center text-xs text-muted-foreground">{item.po_number} / {item.po_item}</td>
+                    {!isDirect && <td className="px-6 py-4 text-center text-xs text-muted-foreground">{item.po_number} / {item.po_item}</td>}
                     {!isDirect && (
                       <td className="px-6 py-4 text-right">
                         <Badge className={isMatch ? "bg-success/10 text-success border-0" : "bg-destructive/10 text-destructive border-0"}>

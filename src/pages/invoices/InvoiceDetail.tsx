@@ -138,7 +138,7 @@ const InvoiceDetail = () => {
           <ArrowLeft className="w-4 h-4" /> {backLabel}
         </Link>
         <div className="flex items-center gap-3">
-          {allMatch && isFinance && (
+          {allMatch && isFinance && data.status !== "submitted" && data.status !== "pending approval" && data.status !== "approved" && (
             <Button onClick={handleSubmitForApproval} disabled={isSubmitting} className="bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90 text-white gap-2">
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Submit for Approval

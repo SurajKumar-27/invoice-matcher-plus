@@ -23,14 +23,18 @@ const SapSuccess = () => {
             </motion.div>
 
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">MIRO Parked Successfully</h1>
+              <h1 className="text-2xl font-bold text-foreground">
+                {isDirect ? "SAP Document Posted Successfully" : "MIRO Parked Successfully"}
+              </h1>
               <p className="text-sm text-muted-foreground">
                 Invoice <span className="font-semibold text-foreground">{invoiceNo || "—"}</span> has been posted to SAP.
               </p>
             </div>
 
             <div className="bg-muted/50 rounded-xl p-5">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">MIRO Number</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                {isDirect ? "SAP Document Number" : "MIRO Number"}
+              </p>
               <p className="text-3xl font-bold text-primary font-mono tracking-wide">{sap_mairo_number || "—"}</p>
             </div>
 

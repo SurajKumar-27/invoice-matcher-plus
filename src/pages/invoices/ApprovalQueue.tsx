@@ -65,7 +65,6 @@ const ApprovalQueue = () => {
                   <tr key={inv.id} className="hover:bg-muted/5 transition-colors">
                     <td className="px-6 py-4 text-muted-foreground">{index + 1}</td>
                     <td className="px-6 py-4 font-mono font-semibold">{inv.invoice_no}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{inv.submitted_by || "—"}</td>
                     <td className="px-6 py-4 text-muted-foreground">{inv.submitted_at || "—"}</td>
                     <td className="px-6 py-4 font-mono">{inv.total || "—"}</td>
                     <td className="px-6 py-4"><StatusBadge status={inv.status} /></td>

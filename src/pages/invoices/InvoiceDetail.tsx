@@ -304,7 +304,7 @@ const InvoiceDetail = () => {
                         {item.sap_price || "0.00"}
                       </td>
                     )}
-                    <td className="px-6 py-4 text-center text-xs text-muted-foreground">{item.po_number} / {item.po_item}</td>
+                    {!isDirect && <td className="px-6 py-4 text-center text-xs text-muted-foreground">{item.po_number} / {item.po_item}</td>}
                     {!isDirect && (
                       <td className="px-6 py-4 text-right">
                         <Badge className={isMatch ? "bg-success/10 text-success border-0" : "bg-destructive/10 text-destructive border-0"}>

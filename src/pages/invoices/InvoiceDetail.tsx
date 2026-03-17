@@ -110,7 +110,7 @@ const InvoiceDetail = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="text-sm font-medium text-muted-foreground">Synchronizing with SAP...</p>
+        <p className="text-sm font-medium text-muted-foreground">Loading invoice...</p>
       </div>
     );
   }
@@ -118,11 +118,13 @@ const InvoiceDetail = () => {
   if (!data) return null;
 
   const items = data.items_details || [];
-  const matchCount = items.filter((item) =>
+  const isDirect = data.invoice_type === "direct";
+
+  const matchCount = isDirect ? items.length : items.filter((item) =>
     Number(item.quantity) === Number(item.sap_quantity) &&
     Number(item.rate) === Number(item.sap_price)
   ).length;
-  const allMatch = matchCount === items.length && items.length > 0;
+  const allMatch = isDirect ? true : (matchCount === items.length && items.length > 0);
 
   const isFinance = user?.role === "finance";
   const isApprover = user?.role === "approver";
@@ -171,23 +173,31 @@ const InvoiceDetail = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-bold tracking-tight">{data.invoice_no}</h1>
-                  <Badge className={allMatch ? "bg-success/10 text-success border-0" : "bg-warning/10 text-warning border-0"}>
-                    {allMatch ? "Ready for SAP" : "Needs Review"}
-                  </Badge>
+                  {isDirect ? (
+                    <Badge className="bg-success/10 text-success border-0">Ready for SAP</Badge>
+                  ) : (
+                    <Badge className={allMatch ? "bg-success/10 text-success border-0" : "bg-warning/10 text-warning border-0"}>
+                      {allMatch ? "Ready for SAP" : "Needs Review"}
+                    </Badge>
+                  )}
                 </div>
-                <p className="text-sm text-muted-foreground">3-Way Match Verification Report</p>
+                <p className="text-sm text-muted-foreground">
+                  {isDirect ? "Direct Invoice Review" : "3-Way Match Verification Report"}
+                </p>
               </div>
             </div>
-            <div className="flex gap-10">
-              <div className="text-center">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">OCR Confidence</p>
-                <p className="text-xl font-bold">100%</p>
+            {!isDirect && (
+              <div className="flex gap-10">
+                <div className="text-center">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">OCR Confidence</p>
+                  <p className="text-xl font-bold">100%</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Validation</p>
+                  <p className="text-xl font-bold text-success">{matchCount}/{items.length}</p>
+                </div>
               </div>
-              <div className="text-center">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Validation</p>
-                <p className="text-xl font-bold text-success">{matchCount}/{items.length}</p>
-              </div>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -204,20 +214,24 @@ const InvoiceDetail = () => {
                   <p className="text-base font-semibold">{data.invoice_date}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-accent text-accent-foreground rounded-lg"><Hash className="w-4 h-4" /></div>
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase">GR Number</p>
-                  <p className="text-base font-semibold">{data.gr_number || "N/A"}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-accent text-accent-foreground rounded-lg"><Hash className="w-4 h-4" /></div>
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase">SES Number</p>
-                  <p className="text-base font-semibold">{data.ses_number || "N/A"}</p>
-                </div>
-              </div>
+              {!isDirect && (
+                <>
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 bg-accent text-accent-foreground rounded-lg"><Hash className="w-4 h-4" /></div>
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">GR Number</p>
+                      <p className="text-base font-semibold">{data.gr_number || "N/A"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 bg-accent text-accent-foreground rounded-lg"><Hash className="w-4 h-4" /></div>
+                    <div>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">SES Number</p>
+                      <p className="text-base font-semibold">{data.ses_number || "N/A"}</p>
+                    </div>
+                  </div>
+                </>
+              )}
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-success/10 text-success rounded-lg"><DollarSign className="w-4 h-4" /></div>
                 <div>
@@ -227,7 +241,9 @@ const InvoiceDetail = () => {
               </div>
               <Separator />
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Verification ensures quantities and rates extracted via OCR match SAP Purchase Order records.
+                {isDirect
+                  ? "Direct invoice — OCR-extracted data shown as-is. No 3-way match verification required."
+                  : "Verification ensures quantities and rates extracted via OCR match SAP Purchase Order records."}
               </p>
             </CardContent>
           </Card>
@@ -253,7 +269,7 @@ const InvoiceDetail = () => {
       <Card>
         <div className="px-6 py-4 border-b bg-muted/20 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-success" />
-          <h3 className="text-sm font-semibold">3-Way Match Reconciliation</h3>
+          <h3 className="text-sm font-semibold">{isDirect ? "Invoice Line Items" : "3-Way Match Reconciliation"}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -261,12 +277,12 @@ const InvoiceDetail = () => {
               <tr>
                 <th className="px-6 py-4 text-left text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Item Code</th>
                 <th className="px-6 py-4 text-left text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Description</th>
-                <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">OCR Qty</th>
-                <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">SAP Qty</th>
-                <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">OCR Rate</th>
-                <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">SAP Rate</th>
+                <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{isDirect ? "Qty" : "OCR Qty"}</th>
+                {!isDirect && <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">SAP Qty</th>}
+                <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{isDirect ? "Rate" : "OCR Rate"}</th>
+                {!isDirect && <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">SAP Rate</th>}
                 <th className="px-6 py-4 text-center text-[11px] font-bold text-muted-foreground uppercase tracking-wider">PO / Item</th>
-                <th className="px-6 py-4 text-right text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Result</th>
+                {!isDirect && <th className="px-6 py-4 text-right text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Result</th>}
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -277,19 +293,25 @@ const InvoiceDetail = () => {
                     <td className="px-6 py-4 font-mono text-xs font-bold">{item.item_code}</td>
                     <td className="px-6 py-4 text-xs text-muted-foreground max-w-[250px] truncate">{item.description}</td>
                     <td className="px-6 py-4 text-center font-mono">{item.quantity}</td>
-                    <td className={`px-6 py-4 text-center font-mono font-bold ${Number(item.quantity) === Number(item.sap_quantity) ? "text-success" : "text-destructive"}`}>
-                      {item.sap_quantity || "0.00"}
-                    </td>
+                    {!isDirect && (
+                      <td className={`px-6 py-4 text-center font-mono font-bold ${Number(item.quantity) === Number(item.sap_quantity) ? "text-success" : "text-destructive"}`}>
+                        {item.sap_quantity || "0.00"}
+                      </td>
+                    )}
                     <td className="px-6 py-4 text-center font-mono">{item.rate}</td>
-                    <td className={`px-6 py-4 text-center font-mono font-bold ${Number(item.rate) === Number(item.sap_price) ? "text-success" : "text-destructive"}`}>
-                      {item.sap_price || "0.00"}
-                    </td>
+                    {!isDirect && (
+                      <td className={`px-6 py-4 text-center font-mono font-bold ${Number(item.rate) === Number(item.sap_price) ? "text-success" : "text-destructive"}`}>
+                        {item.sap_price || "0.00"}
+                      </td>
+                    )}
                     <td className="px-6 py-4 text-center text-xs text-muted-foreground">{item.po_number} / {item.po_item}</td>
-                    <td className="px-6 py-4 text-right">
-                      <Badge className={isMatch ? "bg-success/10 text-success border-0" : "bg-destructive/10 text-destructive border-0"}>
-                        {isMatch ? "Matched" : "Mismatch"}
-                      </Badge>
-                    </td>
+                    {!isDirect && (
+                      <td className="px-6 py-4 text-right">
+                        <Badge className={isMatch ? "bg-success/10 text-success border-0" : "bg-destructive/10 text-destructive border-0"}>
+                          {isMatch ? "Matched" : "Mismatch"}
+                        </Badge>
+                      </td>
+                    )}
                   </tr>
                 );
               })}

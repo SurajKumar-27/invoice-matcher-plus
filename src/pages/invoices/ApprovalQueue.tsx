@@ -54,7 +54,6 @@ const ApprovalQueue = () => {
                 <tr>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-muted-foreground uppercase tracking-wider">#</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Invoice No</th>
-                  <th className="px-6 py-4 text-left text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Submitted By</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Date</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Total</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Status</th>

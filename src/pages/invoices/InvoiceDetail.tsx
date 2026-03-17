@@ -130,7 +130,7 @@ const InvoiceDetail = () => {
   const isApprover = user?.role === "approver";
   const backPath = isApprover ? "/approvals" : "/invoices";
   const backLabel = isApprover ? "Back to Approval Queue" : "Back to Invoices";
-
+console.log("STATUS:", data);
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 pb-10">
       <div className="flex items-center justify-between">

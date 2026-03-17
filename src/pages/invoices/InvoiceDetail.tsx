@@ -82,7 +82,7 @@ const InvoiceDetail = () => {
     try {
       const result = await api.approveInvoice(id);
       navigate("/sap-success", {
-        state: { sap_mairo_number: result.sap_mairo_number || "—", invoiceNo: data?.invoice_no },
+        state: { sap_mairo_number: result.sap_mairo_number || "—", invoiceNo: data?.invoice_no, isDirect },
       });
     } catch {
       alert("Failed to approve and post invoice to SAP. Please try again.");
